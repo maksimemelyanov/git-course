@@ -9,6 +9,8 @@
 *   [Лабораторная работа №5. Модель ветвления Git Flow](lab5.md)
 *   [Лабораторная работа №6. Интерактивный rebase, cherry-pick, теги, reflog](lab6.md)
 
+  [Ведомость по лабораторным работам](https://docs.google.com/spreadsheets/d/1cBdYPRvPsqYRL7aOGZNB07zowJApAIQQ-RWPTFn89aI/edit?usp=sharing)
+
 * * *
 
 ## Перед началом работы
