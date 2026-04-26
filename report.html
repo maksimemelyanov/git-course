@@ -45,20 +45,13 @@
             transform: scale(1.2);
             margin: 0;
         }
-        textarea, input[type="text"] {
+        textarea, input[type="text"], input[type="date"] {
             width: 100%;
             padding: 6px;
             font-family: monospace;
             border: 1px solid #aaa;
             border-radius: 4px;
             box-sizing: border-box;
-        }
-        .cmd-block {
-            background: #f4f4f4;
-            padding: 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            white-space: pre-wrap;
         }
         .signature {
             margin-top: 30px;
@@ -81,6 +74,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            margin-right: 10px;
         }
         button:hover {
             background: #1a2a3a;
@@ -90,11 +84,26 @@
             color: #555;
             margin-top: 10px;
         }
+        select {
+            padding: 5px;
+            font-size: 14px;
+        }
+        .task-list {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
     </style>
 </head>
 <body>
 <div class="report" id="report">
-    <h1>Отчёт по лабораторной работе № <span id="labNumber">___</span></h1>
+    <h1>Отчёт по лабораторной работе № <select id="labSelect">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <!--option value="5">5</option>
+        <option value="6">6</option-->
+    </select></h1>
     <p><strong>Название работы:</strong> <span id="labTitle">____________________</span></p>
     <p><strong>Студент:</strong> <input type="text" id="studentName" placeholder="ФИО" style="width: 300px;"></p>
     <p><strong>Группа:</strong> <input type="text" id="group" placeholder="Группа" style="width: 200px;"></p>
@@ -106,17 +115,18 @@
     <p>Отметьте галочками выполненные шаги. При необходимости впишите выполненные команды и полученный вывод.</p>
     <table id="stepsTable">
         <thead>
-            <tr><th>Шаг</th><th>Описание</th><th style="width: 40px;">Вып.</th><th>Выполненные команды (или вывод)</th></tr>
+            <tr><th>Шаг</th><th>Описание</th><th style="width: 40px;">Вып.</th><th>Команды / вывод</th></tr>
         </thead>
-        <tbody>
-            <!-- Шаблон строк будет заполняться динамически, но можно и вручную прописать -->
+        <tbody id="stepsBody">
+            <!-- заполняется JS -->
         </tbody>
     </table>
 
     <h2>2. Самостоятельное задание</h2>
-    <p><strong>Условие:</strong> <span id="taskCondition"></span></p>
+    <p><strong>Условие:</strong></p>
+    <div id="taskCondition"></div>
     <p><strong>Выполнение (ход действий и результат):</strong></p>
-    <textarea id="taskResult" rows="5" placeholder="Опишите, что сделали, приведите команды и полученный вывод..."></textarea>
+    <textarea id="taskResult" rows="6" placeholder="Опишите, что сделали, приведите команды и полученный вывод..."></textarea>
 
     <h2>3. Ответы на контрольные вопросы</h2>
     <ol id="questionsList">
@@ -130,20 +140,10 @@
 
     <hr>
 
-    <div class="grade">
-        <strong>Для преподавателя:</strong><br>
-        <label>Оценка: <input type="text" id="grade" placeholder="баллы / 10" style="width: 80px;"></label>
-        <label style="margin-left: 20px;">Подпись: _________________</label>
-        <label style="margin-left: 20px;">Дата проверки: <input type="date" id="checkDate"></label>
-    </div>
-
-    <div class="signature">
-        <div>Студент: ____________________</div>
-        <div>Преподаватель: _________________</div>
-    </div>
+   
 
     <div class="note">
-        <strong>Инструкция по заполнению:</strong> Заполните текстовые поля и таблицу. Для отметки выполнения шага поставьте галочку в столбце «Вып.». При необходимости в столбце «Команды/вывод» впишите, что именно выполняли. Сохраните файл как <code>report_LabX_Фамилия.html</code> и отправьте преподавателю.
+        <strong>Инструкция:</strong> Выберите номер лабораторной работы, заполните таблицу (отмечайте выполненные шаги и вписывайте команды/вывод). Нажмите кнопку печати для сохранения в PDF.
     </div>
     <br>
     <button onclick="window.print()">📄 Печать / Сохранить как PDF</button>
@@ -151,62 +151,126 @@
 </div>
 
 <script>
-    // Функция для динамической загрузки шагов в зависимости от номера лабораторной
-    // (можно расширить, но для простоты оставим редактируемую таблицу с примерами)
-    function initSteps(labNum) {
-        // Здесь можно прописать шаги для каждой лабораторной, но проще дать возможность студенту заполнить самому.
-        // Для удобства создадим базовую структуру с возможностью добавлять строки.
-        const tbody = document.querySelector('#stepsTable tbody');
-        // Пример заготовки на 8 шагов (можно изменить)
-        const defaultSteps = [
-            "Создать каталог и инициализировать репозиторий",
-            "Создать файл, проверить статус",
-            "Добавить в индекс и сделать коммит",
-            "Создать второй файл, частичное добавление",
-            "Изменить файл, использовать git diff",
-            "Посмотреть историю коммитов",
-            "Добавить .gitignore",
-            "Самостоятельное задание (шаги)"
-        ];
-        tbody.innerHTML = '';
-        for (let i = 0; i < defaultSteps.length; i++) {
-            let row = tbody.insertRow();
-            row.insertCell(0).innerText = (i+1).toString();
-            row.insertCell(1).innerText = defaultSteps[i];
-            let cbCell = row.insertCell(2);
-            cbCell.classList.add('checkbox');
-            let cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cbCell.appendChild(cb);
-            let cmdCell = row.insertCell(3);
-            let textarea = document.createElement('textarea');
-            textarea.rows = 2;
-            textarea.style.width = '100%';
-            textarea.placeholder = 'Введите выполненные команды или вывод...';
-            cmdCell.appendChild(textarea);
+    const labData = {
+        1: {
+            title: "Основы работы с локальным репозиторием",
+            steps: [
+                "Создать каталог и инициализировать репозиторий (git init)",
+                "Создать файл README.md и проверить статус (git status)",
+                "Добавить README.md в индекс и сделать первый коммит",
+                "Создать файл hello.txt, добавить его в индекс и сделать коммит",
+                "Изменить hello.txt, использовать git diff, затем git diff --staged",
+                "Сделать второй коммит с обновлённым hello.txt",
+                "Посмотреть историю коммитов (git log --oneline --graph)",
+                "Создать .gitignore, добавить temp.txt и *.log, сделать коммит"
+            ],
+            taskCondition: "1. Создайте файл notes.txt с тремя строками текста.\n2. Сделайте коммит.\n3. Измените вторую строку, посмотрите git diff.\n4. Сделайте второй коммит.\n5. Выведите историю в формате: git log --pretty=format:\"%h - %an : %s\"",
+            questions: [
+                "Какие состояния может иметь файл в Git?",
+                "Зачем нужен .gitignore?",
+                "Чем отличается git diff от git diff --staged?"
+            ]
+        },
+        2: {
+            title: "Ветвление и слияние",
+            steps: [
+                "Подготовить репозиторий: создать file.txt, main.txt, сделать начальный коммит",
+                "Создать ветку feature (git checkout -b feature)",
+                "В ветке feature добавить feature.txt и изменить file.txt (добавить строку), сделать коммит",
+                "Переключиться в main, добавить main_data.txt и изменить file.txt (добавить другую строку), сделать коммит",
+                "Выполнить слияние feature в main (git merge feature) — будет трёхстороннее слияние без конфликта",
+                "Создать ветку bugfix от main (git checkout -b bugfix)",
+                "В ветке bugfix изменить ПЕРВУЮ строку file.txt на 'Bugfix version', сделать коммит",
+                "В ветке main изменить ПЕРВУЮ строку file.txt на 'Main version', сделать коммит",
+                "Выполнить слияние bugfix в main (git merge bugfix) — ВОЗНИКНЕТ КОНФЛИКТ",
+                "Разрешить конфликт в file.txt (убрать маркеры, оставить нужный текст), git add, git commit",
+                "Посмотреть граф веток (git log --graph --oneline --all --decorate)"
+            ],
+            taskCondition: "Создайте ветку experiment от main, добавьте файл exp.log, в main измените main_data.txt, выполните слияние experiment в main с сообщением 'Merge experiment branch'.",
+            questions: [
+                "Что такое HEAD?",
+                "Когда Git не может выполнить слияние автоматически?",
+                "Как прервать слияние?"
+            ]
+        },
+        3: {
+            title: "Удалённые репозитории (GitHub)",
+            steps: [
+                "Создать пустой репозиторий на GitHub",
+                "Локально инициализировать репозиторий, добавить README.md, сделать коммит",
+                "Привязать удалённый репозиторий (git remote add origin URL)",
+                "Отправить main на GitHub (git push -u origin main)",
+                "Сделать клон репозитория в другую папку (git clone URL)",
+                "В клоне добавить файл dev2.txt, сделать коммит и push",
+                "В оригинальной папке выполнить git pull",
+                "Создать ветку feature-remote, добавить файл, отправить на GitHub",
+                "Удалить удалённую ветку (git push origin --delete feature-remote)"
+            ],
+            taskCondition: "Создайте ветку dev, запушьте её на GitHub, удалите через веб-интерфейс, затем выполните git remote prune origin и убедитесь, что локальная ссылка на удалённую ветку исчезла.",
+            questions: [
+                "Что такое origin/main?",
+                "Опасен ли git pull при незакоммиченных изменениях?",
+                "Как посмотреть все удалённые ветки?"
+            ]
+        },
+        4: {
+            title: "Коррекция истории: amend, reset, revert, stash",
+            steps: [
+                "Создать репозиторий и сделать три коммита (A, B, C)",
+                "Использовать git commit --amend, чтобы добавить забытый файл D в последний коммит",
+                "Выполнить git reset --soft HEAD~1, затем снова сделать коммит",
+                "Сделать коммит E, затем git reset HEAD~1 (mixed)",
+                "Выполнить git reset --hard HEAD~1, чтобы потерять коммит E",
+                "Сделать ошибочный коммит и отменить его через git revert",
+                "Спрятать незакоммиченные изменения через git stash, сделать другой коммит, затем применить stash (git stash pop)"
+            ],
+            taskCondition: "Сделайте 3 коммита, измените сообщение второго через git rebase -i, спрячьте файл, сделайте git reset --hard на два коммита назад, затем найдите потерянный коммит через git reflog и вернитесь к нему.",
+            questions: [
+                "Можно ли восстановить данные после git reset --hard? Как?",
+                "Когда использовать git revert вместо git reset?",
+                "Чем отличается stash pop от stash apply?"
+            ]
         }
-        // Добавляем кнопку для добавления строки
-        let addRowBtn = document.createElement('button');
-        addRowBtn.innerText = '+ Добавить шаг';
-        addRowBtn.type = 'button';
-        addRowBtn.onclick = function() {
-            let row = tbody.insertRow();
-            let stepNum = tbody.rows.length;
-            row.insertCell(0).innerText = stepNum.toString();
-            row.insertCell(1).innerHTML = '<input type="text" placeholder="Описание шага" style="width:100%;">';
-            let cbCell = row.insertCell(2);
+    };
+
+    function loadLab(labNum) {
+        const data = labData[labNum];
+        if (!data) return;
+
+        document.getElementById('labTitle').innerText = data.title;
+        // Заполняем таблицу шагов
+        const tbody = document.getElementById('stepsBody');
+        tbody.innerHTML = '';
+        data.steps.forEach((step, idx) => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = (idx+1).toString();
+            row.insertCell(1).innerText = step;
+            const cbCell = row.insertCell(2);
             cbCell.classList.add('checkbox');
-            let cb = document.createElement('input');
+            const cb = document.createElement('input');
             cb.type = 'checkbox';
             cbCell.appendChild(cb);
-            let cmdCell = row.insertCell(3);
-            let textarea = document.createElement('textarea');
+            const cmdCell = row.insertCell(3);
+            const textarea = document.createElement('textarea');
             textarea.rows = 2;
-            textarea.style.width = '100%';
-            textarea.placeholder = 'Команды / вывод';
+            textarea.placeholder = 'Введите команды или вывод...';
             cmdCell.appendChild(textarea);
-        };
-        document.querySelector('#stepsTable').after(addRowBtn);
+        });
+
+        // Условие самостоятельного задания
+        const taskDiv = document.getElementById('taskCondition');
+        taskDiv.innerHTML = `<div class="task-list"><pre style="white-space: pre-wrap;">${data.taskCondition}</pre></div>`;
+
+        // Контрольные вопросы
+        const q1 = document.getElementById('q1');
+        const q2 = document.getElementById('q2');
+        const q3 = document.getElementById('q3');
+        q1.placeholder = data.questions[0];
+        q2.placeholder = data.questions[1];
+        q3.placeholder = data.questions[2];
+        q1.value = '';
+        q2.value = '';
+        q3.value = '';
     }
 
     function resetForm() {
@@ -214,36 +278,24 @@
         document.getElementById('group').value = '';
         document.getElementById('date').value = '';
         document.getElementById('taskResult').value = '';
-        document.getElementById('q1').value = '';
-        document.getElementById('q2').value = '';
-        document.getElementById('q3').value = '';
         document.getElementById('comments').value = '';
         document.getElementById('grade').value = '';
         document.getElementById('checkDate').value = '';
-        // сбросить чекбоксы и текстареи в таблице
-        let checkboxes = document.querySelectorAll('#stepsTable input[type="checkbox"]');
+        const checkboxes = document.querySelectorAll('#stepsBody input[type="checkbox"]');
         checkboxes.forEach(cb => cb.checked = false);
-        let textareas = document.querySelectorAll('#stepsTable textarea');
+        const textareas = document.querySelectorAll('#stepsBody textarea');
         textareas.forEach(ta => ta.value = '');
+        document.getElementById('q1').value = '';
+        document.getElementById('q2').value = '';
+        document.getElementById('q3').value = '';
     }
 
-    // Можно передать номер работы из URL или запросить у пользователя
-    let labNum = prompt("Введите номер лабораторной работы (1-6):", "1");
-    if (labNum) {
-        document.getElementById('labNumber').innerText = labNum;
-        // Можно подставить название работы (для красоты)
-        let titles = {
-            "1": "Основы работы с локальным репозиторием",
-            "2": "Ветвление и слияние",
-            "3": "Удалённые репозитории (GitHub)",
-            "4": "Коррекция истории: amend, reset, revert, stash",
-            "5": "Модель ветвления Git Flow",
-            "6": "Интерактивный rebase, cherry-pick, теги, reflog"
-        };
-        document.getElementById('labTitle').innerText = titles[labNum] || "Лабораторная работа по Git";
-        document.getElementById('taskCondition').innerText = "См. текст лабораторной работы, раздел «Самостоятельное задание».";
-    }
-    initSteps();
+    const labSelect = document.getElementById('labSelect');
+    labSelect.addEventListener('change', function() {
+        loadLab(this.value);
+    });
+
+    loadLab('1');
 </script>
 </body>
 </html>
