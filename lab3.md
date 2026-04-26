@@ -69,6 +69,7 @@ git push -u origin feature-remote
 
 ```
 # на GitHub через веб-интерфейс измените README.md
+git checkout main
 git fetch origin
 git status   # "Your branch is behind"
 git merge origin/main
