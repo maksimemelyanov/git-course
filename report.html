@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>Отчёт по лабораторной работе Git</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: sans-serif;
             line-height: 1.4;
@@ -45,13 +48,29 @@
             transform: scale(1.2);
             margin: 0;
         }
-        textarea, input[type="text"], input[type="date"] {
-            width: 100%;
-            padding: 6px;
-            font-family: monospace;
+        /* editable поля */
+        .editable {
             border: 1px solid #aaa;
             border-radius: 4px;
-            box-sizing: border-box;
+            padding: 6px;
+            min-height: 40px;
+            background: #fff;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+            cursor: text;
+        }
+        .editable:focus {
+            outline: none;
+            border-color: #2c3e50;
+            background: #fef9e6;
+        }
+        /* для полей ввода текста (ФИО, группа и т.д.) */
+        input[type="text"], input[type="date"], select {
+            padding: 6px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            font-size: 14px;
         }
         .signature {
             margin-top: 30px;
@@ -84,13 +103,53 @@
             color: #555;
             margin-top: 10px;
         }
-        select {
-            padding: 5px;
-            font-size: 14px;
-        }
         .task-list {
             margin: 10px 0;
             padding-left: 20px;
+        }
+        /* Стили для печати — убираем рамки и фон, делаем editable поля как обычный текст */
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+            .report {
+                padding: 15px;
+                box-shadow: none;
+            }
+            button {
+                display: none;
+            }
+            .editable {
+                border: none;
+                padding: 0;
+                min-height: auto;
+                background: none;
+                font-family: inherit;
+            }
+            .editable:focus {
+                background: none;
+            }
+            input[type="text"], input[type="date"], select {
+                border: none;
+                padding: 0;
+                font-family: inherit;
+            }
+            .grade {
+                background: none;
+                border: 1px solid #ccc;
+                padding: 8px;
+            }
+            th {
+                background: none;
+            }
+            .checkbox {
+                text-align: center;
+            }
+            input[type="checkbox"] {
+                transform: scale(1);
+            }
         }
     </style>
 </head>
@@ -101,8 +160,6 @@
         <option value="2">2</option>
         <option value="3">3</option>
         <option value="4">4</option>
-        <!--option value="5">5</option>
-        <option value="6">6</option-->
     </select></h1>
     <p><strong>Название работы:</strong> <span id="labTitle">____________________</span></p>
     <p><strong>Студент:</strong> <input type="text" id="studentName" placeholder="ФИО" style="width: 300px;"></p>
@@ -112,7 +169,7 @@
     <hr>
 
     <h2>1. Выполнение шагов лабораторной работы</h2>
-    <p>Отметьте галочками выполненные шаги. При необходимости впишите выполненные команды и полученный вывод.</p>
+    <p>Отметьте галочками выполненные шаги. В столбце «Команды / вывод» напишите выполненные команды и полученный вывод (поле автоматически растягивается по содержимому).</p>
     <table id="stepsTable">
         <thead>
             <tr><th>Шаг</th><th>Описание</th><th style="width: 40px;">Вып.</th><th>Команды / вывод</th></tr>
@@ -126,24 +183,22 @@
     <p><strong>Условие:</strong></p>
     <div id="taskCondition"></div>
     <p><strong>Выполнение (ход действий и результат):</strong></p>
-    <textarea id="taskResult" rows="6" placeholder="Опишите, что сделали, приведите команды и полученный вывод..."></textarea>
+    <div id="taskResult" class="editable" contenteditable="true" style="min-height: 100px;"></div>
 
     <h2>3. Ответы на контрольные вопросы</h2>
     <ol id="questionsList">
-        <li><textarea id="q1" rows="2" placeholder="Ответ на вопрос 1..."></textarea></li>
-        <li><textarea id="q2" rows="2" placeholder="Ответ на вопрос 2..."></textarea></li>
-        <li><textarea id="q3" rows="2" placeholder="Ответ на вопрос 3..."></textarea></li>
+        <li><strong>Вопрос 1:</strong><br><div id="q1" class="editable" contenteditable="true"></div></li>
+        <li><strong>Вопрос 2:</strong><br><div id="q2" class="editable" contenteditable="true"></div></li>
+        <li><strong>Вопрос 3:</strong><br><div id="q3" class="editable" contenteditable="true"></div></li>
     </ol>
 
     <h2>4. Дополнительные замечания (при необходимости)</h2>
-    <textarea id="comments" rows="3" placeholder="Сложности, наблюдения, примечания..."></textarea>
+    <div id="comments" class="editable" contenteditable="true" style="min-height: 60px;"></div>
 
     <hr>
 
-   
-
     <div class="note">
-        <strong>Инструкция:</strong> Выберите номер лабораторной работы, заполните таблицу (отмечайте выполненные шаги и вписывайте команды/вывод). Нажмите кнопку печати для сохранения в PDF.
+        <strong>Инструкция:</strong> Выберите номер лабораторной работы. Заполняйте поля — они автоматически растягиваются по высоте под текст. Для печати нажмите кнопку «Печать» — все рамки полей исчезнут, и отчёт будет выглядеть как обычный документ.
     </div>
     <br>
     <button onclick="window.print()">📄 Печать / Сохранить как PDF</button>
@@ -178,7 +233,7 @@
                 "Создать ветку feature (git checkout -b feature)",
                 "В ветке feature добавить feature.txt и изменить file.txt (добавить строку), сделать коммит",
                 "Переключиться в main, добавить main_data.txt и изменить file.txt (добавить другую строку), сделать коммит",
-                "Выполнить слияние feature в main (git merge feature) — будет трёхстороннее слияние без конфликта",
+                "Выполнить слияние feature в main (git merge feature) — трёхстороннее слияние без конфликта",
                 "Создать ветку bugfix от main (git checkout -b bugfix)",
                 "В ветке bugfix изменить ПЕРВУЮ строку file.txt на 'Bugfix version', сделать коммит",
                 "В ветке main изменить ПЕРВУЮ строку file.txt на 'Main version', сделать коммит",
@@ -238,7 +293,6 @@
         if (!data) return;
 
         document.getElementById('labTitle').innerText = data.title;
-        // Заполняем таблицу шагов
         const tbody = document.getElementById('stepsBody');
         tbody.innerHTML = '';
         data.steps.forEach((step, idx) => {
@@ -251,43 +305,42 @@
             cb.type = 'checkbox';
             cbCell.appendChild(cb);
             const cmdCell = row.insertCell(3);
-            const textarea = document.createElement('textarea');
-            textarea.rows = 2;
-            textarea.placeholder = 'Введите команды или вывод...';
-            cmdCell.appendChild(textarea);
+            const editableDiv = document.createElement('div');
+            editableDiv.className = 'editable';
+            editableDiv.setAttribute('contenteditable', 'true');
+            editableDiv.innerHTML = '';
+            cmdCell.appendChild(editableDiv);
         });
 
-        // Условие самостоятельного задания
         const taskDiv = document.getElementById('taskCondition');
         taskDiv.innerHTML = `<div class="task-list"><pre style="white-space: pre-wrap;">${data.taskCondition}</pre></div>`;
 
-        // Контрольные вопросы
+        document.getElementById('q1').innerHTML = '';
+        document.getElementById('q2').innerHTML = '';
+        document.getElementById('q3').innerHTML = '';
         const q1 = document.getElementById('q1');
         const q2 = document.getElementById('q2');
         const q3 = document.getElementById('q3');
-        q1.placeholder = data.questions[0];
-        q2.placeholder = data.questions[1];
-        q3.placeholder = data.questions[2];
-        q1.value = '';
-        q2.value = '';
-        q3.value = '';
+        q1.setAttribute('data-placeholder', data.questions[0]);
+        q2.setAttribute('data-placeholder', data.questions[1]);
+        q3.setAttribute('data-placeholder', data.questions[2]);
     }
 
     function resetForm() {
         document.getElementById('studentName').value = '';
         document.getElementById('group').value = '';
         document.getElementById('date').value = '';
-        document.getElementById('taskResult').value = '';
-        document.getElementById('comments').value = '';
-        document.getElementById('grade').value = '';
-        document.getElementById('checkDate').value = '';
+        document.getElementById('taskResult').innerHTML = '';
+        document.getElementById('comments').innerHTML = '';
         const checkboxes = document.querySelectorAll('#stepsBody input[type="checkbox"]');
         checkboxes.forEach(cb => cb.checked = false);
-        const textareas = document.querySelectorAll('#stepsBody textarea');
-        textareas.forEach(ta => ta.value = '');
-        document.getElementById('q1').value = '';
-        document.getElementById('q2').value = '';
-        document.getElementById('q3').value = '';
+        const editables = document.querySelectorAll('#stepsBody .editable');
+        editables.forEach(ed => ed.innerHTML = '');
+        document.getElementById('q1').innerHTML = '';
+        document.getElementById('q2').innerHTML = '';
+        document.getElementById('q3').innerHTML = '';
+        document.getElementById('taskResult').innerHTML = '';
+        document.getElementById('comments').innerHTML = '';
     }
 
     const labSelect = document.getElementById('labSelect');
