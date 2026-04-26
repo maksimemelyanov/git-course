@@ -72,7 +72,7 @@ git push -u origin feature-remote
 git checkout main
 git fetch origin
 git status   # "Your branch is behind"
-git merge origin/main
+git pull
 ```
 
 ### Шаг 7. Удаление удалённой ветки (3 мин)
