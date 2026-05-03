@@ -160,6 +160,8 @@
         <option value="2">2</option>
         <option value="3">3</option>
         <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
     </select></h1>
     <p><strong>Название работы:</strong> <span id="labTitle">____________________</span></p>
     <p><strong>Студент:</strong> <input type="text" id="studentName" placeholder="ФИО" style="width: 300px;"></p>
@@ -284,6 +286,49 @@
                 "Можно ли восстановить данные после git reset --hard? Как?",
                 "Когда использовать git revert вместо git reset?",
                 "Чем отличается stash pop от stash apply?"
+            ]
+        },
+        5: {
+            title: "Модель ветвления Git Flow",
+            steps: [
+                "Инициализировать репозиторий, создать ветку develop от main",
+                "Создать feature-ветку login от develop, добавить auth.cfg, смержить с --no-ff",
+                "Создать feature-ветку db от develop, добавить db.cfg, смержить с --no-ff",
+                "Создать release-ветку v1.0 от develop, добавить version.txt, сделать коммит",
+                "Слить release в main (с --no-ff), создать тег v1.0",
+                "Слить release обратно в develop (back-merge) с --no-ff",
+                "Создать hotfix-ветку critical от main, добавить patch.log, сделать коммит",
+                "Слить hotfix в main (с --no-ff), создать тег v1.0.1",
+                "Слить hotfix в develop (с --no-ff)"
+            ],
+            taskCondition: "Нарисуйте схему Git Flow. Объясните, почему release сливается и в main, и в develop.",
+            questions: [
+                "Почему нужен --no-ff в Git Flow?",
+                "Можно ли коммитить прямо в develop? Почему это плохая практика?",
+                "Что будет, если забыть слить hotfix в develop?"
+            ]
+        },
+        6: {
+            title: "Интерактивный rebase, cherry-pick, теги, reflog",
+            steps: [
+                "Настроить редактор Git на nano (git config --global core.editor 'nano')",
+                "Создать репозиторий и сделать 5 коммитов (Step 1..5)",
+                "Создать ветку feature-rebase, добавить три коммита (Feature A, Feature B, Fix typo)",
+                "Запустить git rebase -i HEAD~3 и изменить: squash для Feature B, reword для Fix typo",
+                "Сохранить изменения в редакторе (nano: Ctrl+O, Enter, Ctrl+X)",
+                "При squash объединить сообщения коммитов, при reword написать 'Fix critical typo in f3.txt'",
+                "Проверить историю (git log --oneline) — коммитов стало меньше",
+                "Переключиться в main и скопировать исправленный коммит через cherry-pick",
+                "Создать лёгкий тег v1.0.0 и аннотированный тег v1.1.0",
+                "Переключиться по тегу v1.0.0 (detached HEAD), создать от него ветку hotfix-from-tag",
+                "Выполнить git reset --hard HEAD~3, затем восстановить потерянные коммиты через reflog"
+            ],
+            taskCondition: "Создайте ветку messy, сделайте 4 коммита. С помощью git rebase -i HEAD~4 объедините первые два коммита и переименуйте третий. Перенесите один коммит из messy в main через cherry-pick. Создайте аннотированный тег exercise-v1.",
+            questions: [
+                "Почему rebase опасен для публичных веток?",
+                "В чём разница между cherry-pick и merge?",
+                "Как восстановиться после случайного git reset --hard?",
+                "Как сменить редактор по умолчанию для Git?"
             ]
         }
     };
